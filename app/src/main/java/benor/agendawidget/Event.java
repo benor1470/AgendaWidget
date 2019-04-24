@@ -1,11 +1,13 @@
 package benor.agendawidget;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;
@@ -14,28 +16,27 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
+import android.support.annotation.NonNull;
 
 import benor.MLog.MLog;
 
 public class Event implements Comparable<Event> {
 	private final String title;
-	public final int color;
+	private final int color;
 	private final Date start;
 	private final Date end;
-	final int dayOfMonth;
-	private final String calendar;
+	private final int dayOfMonth;
 	private final int calendar_id;
-	final boolean allDayEvent;
-	final boolean happeningNow;
-	int calendarEventID;
+	private final boolean allDayEvent;
+	private final boolean happeningNow;
+	private int calendarEventID;
 	private Boolean isRecurring;
 
-	public Event(String title, int color, Date start, Date end, String calendar, int calendar_id, boolean allDayEvent, int calendarEventID, boolean isRecurring) {
+	private Event(String title, int color, Date start, Date end, int calendar_id, boolean allDayEvent, int calendarEventID, boolean isRecurring) {
 		this.title = title;
 		this.color = color;
 		this.start = start;
 		this.end = end;
-		this.calendar = calendar;
 		this.calendar_id = calendar_id;
 		this.allDayEvent = allDayEvent;
 		this.calendarEventID = calendarEventID;
@@ -43,11 +44,7 @@ public class Event implements Comparable<Event> {
 		now.setTime(start);
 		this.dayOfMonth = now.get(Calendar.DAY_OF_MONTH);
 		this.isRecurring = isRecurring;
-		if (this.start.before(new Date())) {
-			happeningNow = true;
-		} else {
-			happeningNow = false;
-		}
+		happeningNow = this.start.before(new Date());
 	}
 
 	public Uri getCalendarIcon() {
@@ -102,16 +99,13 @@ public class Event implements Comparable<Event> {
 			}
 		}
 
-		String val = (isRecurring ? Globals.con.getString(R.string.recurring) : "") + title + " - " + time;
-		//MLog.i(val+" = "+start+","+end+","+calendar_id+","+allDayEvent);
-		return val;
+		return (isRecurring ? Globals.con.getString(R.string.recurring) : "") + title + " - " + time;
 	}
 
-	private static Event CreateEventFromCursor(Cursor cursor) {
+	private static Event createEventFromCursor(Cursor cursor) {
 		String title = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.TITLE));
 		int color = cursor.getInt(cursor.getColumnIndex(CalendarContract.Events.CALENDAR_COLOR));
 		String eventColor = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.EVENT_COLOR_KEY));
-		String calendar = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.CALENDAR_DISPLAY_NAME));
 		int calendar_id = cursor.getInt(cursor.getColumnIndex(CalendarContract.Events.CALENDAR_ID));
 		boolean allDayEvent = (cursor.getInt(cursor.getColumnIndex(CalendarContract.Events.ALL_DAY)) != 0);
 		int calendarEventID = cursor.getInt(cursor.getColumnIndex(CalendarContract.Events._ID));
@@ -130,29 +124,27 @@ public class Event implements Comparable<Event> {
 
 
 			String where = "Instances.event_id = " + eventId + " AND " + CalendarContract.Instances.END + " > " + new Date().getTime();
-			Cursor event = Globals.con.getContentResolver().query(builder.build(), null, where, null, CalendarContract.Instances.BEGIN + " LIMIT 1");//
-			if (event.moveToFirst()) {
-				start = new Date(event.getLong(event.getColumnIndex(CalendarContract.Instances.BEGIN)));
-				end = new Date(event.getLong(event.getColumnIndex(CalendarContract.Instances.END)));
-			} else {
-				end = start = new Date(0);
+			try (Cursor event = Globals.con.getContentResolver().query(builder.build(), null, where, null, CalendarContract.Instances.BEGIN + " LIMIT 1")) {
+				if (event != null && event.moveToFirst()) {
+					start = new Date(event.getLong(event.getColumnIndex(CalendarContract.Instances.BEGIN)));
+					end = new Date(event.getLong(event.getColumnIndex(CalendarContract.Instances.END)));
+				} else {
+					end = start = new Date(0);
+				}
 			}
 		}
 
-		Event eventGotFromDB = new Event(title, color, start, end, calendar, calendar_id, allDayEvent, calendarEventID, false);
+		Event eventGotFromDB = new Event(title, color, start, end, calendar_id, allDayEvent, calendarEventID, false);
 
 
 		//to clean custom events color
-		if (eventColor != null && "".equals(eventColor) == false) {
+		if (eventColor != null && !"".equals(eventColor)) {
 			ContentValues values = new ContentValues();
-			Uri updateUri = null;
 			// The new title for the event
 			values.put(Events.EVENT_COLOR_KEY, "");
-			updateUri = ContentUris.withAppendedId(Events.CONTENT_URI, calendarEventID);
+			Uri updateUri = ContentUris.withAppendedId(Events.CONTENT_URI, calendarEventID);
 			int rows = Globals.con.getContentResolver().update(updateUri, values, null, null);
 			MLog.i("!@updated: " + rows + " ?1 - " + title + " color was " + eventColor);
-		} else {
-			//MLog.i("not updated "+title+" color="+(eventColor==null?"null":(eventColor.length()==0)?"length=0":color));
 		}
 
 
@@ -167,9 +159,9 @@ public class Event implements Comparable<Event> {
 		return null;
 	}
 
-	public static List<Event> readEvents() {
+	static List<Event> readEvents() {
 		MLog.i("created widgets " + CalendarContract.Events.CONTENT_URI.toString());
-		LinkedList<Event> events = new LinkedList<Event>();
+		List<Event> events = new LinkedList<>();
 
 		long now = new Date().getTime();
 		String whereCondition = CalendarContract.Events.SELF_ATTENDEE_STATUS + " != 2 "
@@ -179,13 +171,13 @@ public class Event implements Comparable<Event> {
 				"(SELECT COUNT(*) FROM Instances WHERE Instances.event_id = view_events._id AND Instances.end>" + now + ")>0"
 				+ ")";
 
-		String calendarsSelector = "";
+		StringBuilder calendarsSelector = new StringBuilder();
 		if (Globals.DB.getShowOnWidgetList().size() > 0) {
-			calendarsSelector += " AND (1==2";
+			calendarsSelector.append(" AND (1==2");
 			for (Integer id : Globals.DB.getShowOnWidgetList()) {
-				calendarsSelector += " OR " + CalendarContract.Events.CALENDAR_ID + " == " + id;
+				calendarsSelector.append(" OR " + Events.CALENDAR_ID + " == ").append(id);
 			}
-			calendarsSelector += ")";
+			calendarsSelector.append(")");
 		}
 		whereCondition += calendarsSelector;
 		MLog.i("selector " + whereCondition);
@@ -193,12 +185,14 @@ public class Event implements Comparable<Event> {
 		@SuppressLint("MissingPermission")
 		Cursor eventsCursor = Globals.con.getContentResolver().query(CalendarContract.Events.CONTENT_URI, null,
 				whereCondition, null, CalendarContract.Events.DTSTART);
-		eventsCursor.moveToFirst();
 
+//		String currentTime = new SimpleDateFormat("hh:mm:ss", Locale.getDefault()).format(new Date());
+//		events.add(new Event("last render " + currentTime, -11958553, new Date(), new Date(System.currentTimeMillis() + 100), Globals.DB.getShowOnWidgetList().get(0), false, 1324, false));
 
 		if (eventsCursor != null && eventsCursor.getCount() > 0) {
+			eventsCursor.moveToFirst();
 			do {
-				Event event = CreateEventFromCursor(eventsCursor);
+				Event event = createEventFromCursor(eventsCursor);
 				if (event != null) {
 					events.add(event);
 				}
@@ -211,7 +205,23 @@ public class Event implements Comparable<Event> {
 	}
 
 	@Override
-	public int compareTo(Event another) {
-		return end.compareTo(another.end);
+	public int compareTo(@NonNull Event another) {
+		return start.compareTo(another.start);
+	}
+
+	public int getColor() {
+		return color;
+	}
+
+	public boolean isHappeningNow() {
+		return happeningNow;
+	}
+
+	public boolean isAllDayEvent() {
+		return allDayEvent;
+	}
+
+	public int getDayOfMonth() {
+		return dayOfMonth;
 	}
 }

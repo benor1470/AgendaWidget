@@ -16,10 +16,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import benor.MLog.MLog;
 
@@ -60,11 +60,9 @@ public class Calendar {
 
 	public static List<Calendar> readCalendars() {
 		List<Calendar> calendars = new ArrayList<>();
-		//if (ContextCompat.checkSelfPermission(Globals.con, Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
 
 		if (Globals.con.getApplicationContext().checkSelfPermission(Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
 			return new ArrayList<>();
-
 		}
 
 
@@ -94,11 +92,11 @@ public class Calendar {
 		return calendars;
 	}
 
-	private static Hashtable<Integer, Bitmap> calendarsIcons = new Hashtable<>();
+	private static Map<Integer, Bitmap> calendarsIcons = new HashMap<>();
 
 	public static Uri getCalIcon(int cal, int color) {
 		File f = new File(Globals.con.getCacheDir() + File.separator + color + ".jpg");
-		if (f.exists()) {//just while debuging
+		if (f.exists()) {//just while debugging
 			f.delete();
 			MLog.i("deleted file");
 		}
@@ -114,7 +112,7 @@ public class Calendar {
 
 			ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 			bm.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-			FileOutputStream fo = null;
+			FileOutputStream fo;
 			try {
 				f.createNewFile();
 				//write the bytes in file

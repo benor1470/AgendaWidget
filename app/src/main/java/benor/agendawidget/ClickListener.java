@@ -16,11 +16,9 @@ import android.widget.Toast;
 import benor.MLog.MLog;
 
 public class ClickListener {
-	public static final String CLICK_ACTION = "CLICK_ACTION";
-
-	public static void handleWidgetClick(Context context) {
+	public static void handleWidgetClick(Context context, int widgetId) {
 		MLog.i("got clicked");
-		Widget.sendUpdateRequest(context);
+		Widget.sendUpdateRequest(context, widgetId);
 		String calendarApp = Globals.DB.getCalendarApp();
 		if (calendarApp != null && calendarApp.split("!").length == 2) {
 			//if(currentForegroundIsLauncher(context)){
