@@ -9,15 +9,13 @@ import android.text.format.Time;
 import benor.MLog.MLog;
 
 public class Globals {
-	public static final String TAG = "AgendaWidget";
-	public static DB DB;
-	public static Activity root;
-	public static Context con;
-	protected static boolean editListInit;
-	public static Widget widget;
-	public static CalsAdapter calsAdapter;
+	private static final String TAG = "AgendaWidget";
+	static DB DB;
+	static Context con;
+	static boolean editListInit;
+	static Widget widget;
 
-	public static String getWeekDay(int day) {
+	static String getWeekDay(int day) {
 		String[] days = Globals.con.getResources().getStringArray(R.array.DaysOfWeek);
 		return days[day - 1];
 	}

@@ -6,11 +6,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,7 +19,6 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -67,7 +64,7 @@ public class MLog extends Handler implements Thread.UncaughtExceptionHandler {
 	public String uniqueId;
 
 	private List<String> loging;
-	HashMap<String, String> CustomParameters = new HashMap<String, String>();
+	private HashMap<String, String> customParameters = new HashMap<>();
 
 	private Thread.UncaughtExceptionHandler PreviousHandler;
 	private static MLog S_mInstance;
@@ -90,7 +87,7 @@ public class MLog extends Handler implements Thread.UncaughtExceptionHandler {
 			loging = new LinkedList<>();
 			S_mInstance = this;
 			if (autoSendForThis == true) {
-				CheckErrorAndSend(false);
+				checkErrorAndSend(false);
 			}
 		}
 	}
@@ -107,10 +104,10 @@ public class MLog extends Handler implements Thread.UncaughtExceptionHandler {
 
 	private String CreateCustomInfoString() {
 		String CustomInfo = "";
-		Iterator<String> iterator = CustomParameters.keySet().iterator();
+		Iterator<String> iterator = customParameters.keySet().iterator();
 		while (iterator.hasNext()) {
 			String CurrentKey = iterator.next();
-			String CurrentVal = CustomParameters.get(CurrentKey);
+			String CurrentVal = customParameters.get(CurrentKey);
 			CustomInfo += CurrentKey + " = " + CurrentVal + "\n";
 		}
 		return CustomInfo;
@@ -384,7 +381,7 @@ public class MLog extends Handler implements Thread.UncaughtExceptionHandler {
 	 * @param useDialog if true sends the log after asking the user for more data
 	 * @return true if had error and there for log to send
 	 */
-	public boolean CheckErrorAndSend(boolean useDialog) {
+	public boolean checkErrorAndSend(boolean useDialog) {
 		try {
 			FilePath = context.getFilesDir().getAbsolutePath();
 			Log.i(TAG, "errors: " + GetErrorFileList().length);

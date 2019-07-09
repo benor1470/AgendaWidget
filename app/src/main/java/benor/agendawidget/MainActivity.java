@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.view.View;
@@ -43,7 +42,6 @@ public class MainActivity extends Activity {
                     PERMISSIONS_REQUEST);
             return;
         }
-        Globals.root = this;
         Globals.init(getApplicationContext());
         Globals.editListInit = false;
     }
@@ -94,8 +92,8 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
         displayingStartScreen = true;
         Globals.editListInit = false;
-        ListView cals = (ListView) this.findViewById(R.id.LV_cals);
-        cals.setAdapter(new CalsAdapter(Globals.root.getApplicationContext(), calendars));
+        ListView cals = this.findViewById(R.id.LV_cals);
+        cals.setAdapter(new CalsAdapter(getApplicationContext(), calendars));
         findViewById(R.id.btn_select_calendar_app).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

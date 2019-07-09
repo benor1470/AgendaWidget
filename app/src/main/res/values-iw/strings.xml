@@ -1,0 +1,17 @@
+<resources>
+	<string name="today">היום</string>
+	<string name="tomorrow">מחר</string>
+
+	<string-array name="DaysOfWeek">
+		<item>א</item>
+		<item>ב</item>
+		<item>ג</item>
+		<item>ד</item>
+		<item>ה</item>
+		<item>ו</item>
+		<item>ז</item>
+	</string-array>
+
+	<string name="SELECT_CALENDAR_APP">בחר תוכנת יומן</string>
+
+</resources>
