@@ -1,7 +1,0 @@
-app/build/
-build/
-.gradle/
-.idea/
-gradle/
-app/app.iml
-build.gradle
