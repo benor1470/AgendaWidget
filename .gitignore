@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+gradle/
+app/debug/
+app/release/
+app/build/
+app/app.iml
+build/
+gradle/
+build.gradle

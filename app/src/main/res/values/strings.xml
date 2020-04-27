@@ -1,0 +1,43 @@
+<resources>
+    <string name="app_name">AgendaWidget</string>
+    <string name="today" translatable="false">↓</string><!--25-->
+    <string name="nextDay">←</string><!--27-->
+    <string name="explanation">Event time will look like this:\n
+↓ for today\n
+← for tomorrow\n
+or full date %date of month%/%month of year%\n
+following day of the week in brackets.\n
+\n
+I want to provide as much info while keeping the rest of the space for event title
+\n\nextra stats:\n
+bold, means in happens now\n
+underline, means full day so no hour\n
+ত means recurring event
+</string>
+    <string name="SELECT_CALENDAR_APP">Select main calendar app</string>
+
+    <string name="widget_language">widget language:</string>
+
+
+    <string name="recurring">ত</string>
+    <string-array name="DaysOfWeek_heb">
+        <item>א</item>
+        <item>ב</item>
+        <item>ג</item>
+        <item>ד</item>
+        <item>ה</item>
+        <item>ו</item>
+        <item>ש</item>
+    </string-array>
+    <string name="loading">loading</string>
+    <string-array name="DaysOfWeek_eng">
+        <item>Su</item>
+        <item>Mo</item>
+        <item>Tu</item>
+        <item>We</item>
+        <item>Th</item>
+        <item>Fr</item>
+        <item>Sa</item>
+    </string-array>
+
+</resources>
