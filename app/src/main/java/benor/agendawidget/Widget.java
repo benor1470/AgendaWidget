@@ -6,7 +6,15 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import benor.MLog.MLog;
@@ -37,6 +45,9 @@ public class Widget extends AppWidgetProvider {
 		svcIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 		svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
 		rv.setRemoteAdapter(R.id.LV_events, svcIntent);
+		//	rv.setInt(R.id.LV_events, "setBackgroundColor", Globals.DB.getBgColor());
+		Bitmap bitView = generateImageView(context);
+		rv.setImageViewBitmap(R.id.IV_background, bitView);
 
 		Intent intent = new Intent(context, Widget.class);
 		intent.addCategory(ACTION_CLICK);
@@ -44,19 +55,42 @@ public class Widget extends AppWidgetProvider {
 		PendingIntent clickPI = PendingIntent.getBroadcast(context, 0, intent, 0);
 		rv.setPendingIntentTemplate(R.id.LV_events, clickPI);
 
+
 		return rv;
+	}
+
+	private static Bitmap generateImageView(Context context) {
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+			BitmapDrawable bitmap = new BitmapDrawable(context.getResources(), Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888, true));
+			Bitmap result = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888, true);
+			Canvas canvas = new Canvas(result);
+
+			Paint myPaint = new Paint();
+			myPaint.setColor(Globals.DB.getBgColor());
+			canvas.drawRect(0, 0, 100, 100, myPaint);
+			return result;
+		} else {
+			return BitmapFactory.decodeResource(context.getResources(), R.drawable.widget_list_shape);
+		}
 	}
 
 	public static void updateWidget(Context context) {
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
+//
+//		Intent intent = new Intent(this, FavMovieWidget.class);
+//		intent.setAction(appWidgetManager.ACTION_APPWIDGET_UPDATE);
+//		int[] ids = appWidgetManager.getAppWidgetIds(new ComponentName(getApplication(), FavMovieWidget.class));
+//		intent.putExtra(appWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+//		sendBroadcast(intent);
 
 		ComponentName thisWidget = new ComponentName(context, Widget.class);
 		int[] ids = manager.getAppWidgetIds(thisWidget);
 		for (int i = 0; i < ids.length; ++i) {
-			manager.notifyAppWidgetViewDataChanged(ids, R.id.LV_events);
-
-
+			manager.updateAppWidget(ids, getWidgetView(context, ids[i]));
 		}
+		manager.notifyAppWidgetViewDataChanged(ids, R.id.LV_events);
+
 	}
 
 	@Override

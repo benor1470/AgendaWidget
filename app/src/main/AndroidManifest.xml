@@ -1,11 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="benor.agendawidget"
-          android:versionCode="1"
-          android:versionName="1.0">
+    package="benor.agendawidget"
+    android:versionCode="1"
+    android:versionName="1.0">
 
-
-    <uses-permission android:name="android.permission.READ_CALENDAR"/>
-    <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
 
     <application
         android:allowBackup="true"
@@ -23,6 +20,23 @@
                       android:name="android.appwidget.provider"
                       android:resource="@xml/watch_widget_provider"/>
               </receiver>-->
+        <activity
+            android:name="MainActivity"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ColorSelector"
+            android:theme="@android:style/Theme.Dialog"/>
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <receiver android:name="Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -30,25 +44,17 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/watch_widget_provider" />
-        </receiver>
-        <activity
-            android:name="MainActivity"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity>
+        </receiver><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
+     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
         <service
             android:name="AgendaWidgetService"
             android:exported="false"
-            android:permission="android.permission.BIND_REMOTEVIEWS"/><!-- ATTENTION: This was auto-generated to add Google Play services to your project for
-     App Indexing.  See https://g.co/AppIndexing/AndroidStudio for more information. -->
-        <meta-data
-            android:name="com.google.android.gms.version"
-            android:value="@integer/google_play_services_version"/>
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
         <!-- <service android:name="ClickListener"/>  -->
     </application>
+
+    <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+
+    <uses-permission android:name="android.permission.READ_CALENDAR" />
 
 </manifest>

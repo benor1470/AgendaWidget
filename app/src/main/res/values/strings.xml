@@ -15,7 +15,7 @@ underline, means full day so no hour\n
 ত means recurring event
 </string>
     <string name="SELECT_CALENDAR_APP">Select main calendar app</string>
-
+    <string name="SELECT_BG_COLOR">set background</string>
     <string name="widget_language">widget language:</string>
 
 

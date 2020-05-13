@@ -12,6 +12,7 @@ public class DB {
 	private final String CALENDARS_SHOWN_ON_WIDGET = "CALENDARS_SHOWN_ON_WIDGET";
 	private final String CALENDARS_APP_INTENT = "CALENDARS_APP_INTENT";
 	private final String SAVED_LANGUAGE = "SAVED_LANGUAGE";
+	private final String BG_COLOR = "BG_COLOR";
 	private LinkedList<Integer> calendarsCache;
 
 	private SharedPreferences getSP() {
@@ -76,5 +77,13 @@ public class DB {
 	void setLang(String widgetLang) {
 		Globals.clearWeekDayStr();
 		getSP().edit().putString(SAVED_LANGUAGE, widgetLang).apply();
+	}
+
+	public int getBgColor() {
+		return getSP().getInt(BG_COLOR, 0x550000FF);
+	}
+
+	void setBgColor(int bgColor) {
+		getSP().edit().putInt(BG_COLOR, bgColor).apply();
 	}
 }

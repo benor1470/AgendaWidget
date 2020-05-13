@@ -29,6 +29,7 @@ import benor.MLog.MLog;
 
 public class MainActivity extends Activity {
 	public final int PERMISSIONS_REQUEST = 1;
+	public final int BG_COLOR_REQUEST = 2;
 	private List<Calendar> calendars;
 	private List<ResolveInfo> pkgAppsList;
 	private List<HashMap<String, String>> installedAppsData;
@@ -48,6 +49,15 @@ public class MainActivity extends Activity {
 		}
 		Globals.init(getApplicationContext());
 		Globals.editListInit = false;
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == BG_COLOR_REQUEST) {
+			Globals.DB.setBgColor(data.getIntExtra("color", ColorSelector.DEFAULT_COLOR));
+		} else {
+			super.onActivityResult(requestCode, resultCode, data);
+		}
 	}
 
 	@Override
@@ -100,6 +110,14 @@ public class MainActivity extends Activity {
 		cals.setAdapter(new CalsAdapter(getApplicationContext(), calendars));
 
 		handleLanguageSelection();
+		findViewById(R.id.btn_select_bg_color).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent intent = new Intent(getApplicationContext(), ColorSelector.class);
+				intent.putExtra("color", Globals.DB.getBgColor());
+				startActivityForResult(intent, BG_COLOR_REQUEST);
+			}
+		});
 
 
 		findViewById(R.id.btn_select_calendar_app).setOnClickListener(new OnClickListener() {
@@ -172,17 +190,6 @@ public class MainActivity extends Activity {
 	public void onPause() {
 		super.onPause();
 		MLog.i("widget is " + Globals.widget);
-		//Widget.doUpdate(AppWidgetManager.getInstance(this));
-	}
-
-
-	@Override
-	public void onStart() {
-		super.onStart();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
+		Widget.updateWidget(getApplicationContext());
 	}
 }
