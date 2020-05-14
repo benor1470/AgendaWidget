@@ -79,11 +79,21 @@ public class DB {
 		getSP().edit().putString(SAVED_LANGUAGE, widgetLang).apply();
 	}
 
-	public int getBgColor() {
-		return getSP().getInt(BG_COLOR, 0x550000FF);
+	public Integer getBgColor() {
+		if (getSP().contains(BG_COLOR)) {
+			return getSP().getInt(BG_COLOR, 0x550000FF);
+		} else {
+			return null;
+		}
 	}
 
-	void setBgColor(int bgColor) {
-		getSP().edit().putInt(BG_COLOR, bgColor).apply();
+	void setBgColor(Integer bgColor) {
+		SharedPreferences.Editor edit = getSP().edit();
+		if (bgColor == null) {
+			edit.remove(BG_COLOR);
+		} else {
+			edit.putInt(BG_COLOR, bgColor);
+		}
+		edit.apply();
 	}
 }

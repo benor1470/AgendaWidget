@@ -46,9 +46,12 @@ public class Widget extends AppWidgetProvider {
 		svcIntent.setData(Uri.parse(svcIntent.toUri(Intent.URI_INTENT_SCHEME)));
 		rv.setRemoteAdapter(R.id.LV_events, svcIntent);
 		//	rv.setInt(R.id.LV_events, "setBackgroundColor", Globals.DB.getBgColor());
-		Bitmap bitView = generateImageView(context);
-		rv.setImageViewBitmap(R.id.IV_background, bitView);
-
+		if (Globals.DB.getBgColor() == null) {
+			rv.setImageViewResource(R.id.IV_background, R.drawable.widget_list_shape);
+		} else {
+			Bitmap bitView = generateImageView(context);
+			rv.setImageViewBitmap(R.id.IV_background, bitView);
+		}
 		Intent intent = new Intent(context, Widget.class);
 		intent.addCategory(ACTION_CLICK);
 		intent.setAction(ACTION_APPWIDGET_UPDATE);

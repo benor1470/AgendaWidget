@@ -30,6 +30,8 @@ underline, means full day so no hour\n
         <item>ש</item>
     </string-array>
     <string name="loading">loading</string>
+    <string name="revert_to_default">revert to default</string>
+    <string name="save">Save</string>
     <string-array name="DaysOfWeek_eng">
         <item>Su</item>
         <item>Mo</item>

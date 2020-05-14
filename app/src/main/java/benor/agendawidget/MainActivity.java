@@ -54,7 +54,11 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (requestCode == BG_COLOR_REQUEST) {
-			Globals.DB.setBgColor(data.getIntExtra("color", ColorSelector.DEFAULT_COLOR));
+			if (data.hasExtra("color")) {
+				Globals.DB.setBgColor(data.getIntExtra("color", 0));
+			} else {
+				Globals.DB.setBgColor(null);
+			}
 		} else {
 			super.onActivityResult(requestCode, resultCode, data);
 		}
