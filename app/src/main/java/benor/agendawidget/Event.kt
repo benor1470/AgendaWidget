@@ -98,29 +98,29 @@ class Event private constructor(
             val allDay = cursor.getInt(cursor.getColumnIndexOrThrow(CalendarContract.Events.ALL_DAY)) != 0
             val eventId = cursor.getInt(cursor.getColumnIndexOrThrow(CalendarContract.Events._ID))
 
-            val start: Date
-            val end: Date
-
-            if (cursor.getString(cursor.getColumnIndexOrThrow(CalendarContract.Events.RRULE)) == null) {
-                start = Date(cursor.getLong(cursor.getColumnIndexOrThrow(CalendarContract.Events.DTSTART)))
-                end = Date(cursor.getLong(cursor.getColumnIndexOrThrow(CalendarContract.Events.DTEND)))
-            } else {
-                val builder: Uri.Builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
-                ContentUris.appendId(builder, Date().time)
-                ContentUris.appendId(builder, Long.MAX_VALUE)
-                val where = "Instances.event_id = $eventId AND ${CalendarContract.Instances.END} > ${Date().time}"
-                val instanceCursor = Globals.con.contentResolver.query(
-                    builder.build(), null, where, null, "${CalendarContract.Instances.BEGIN} LIMIT 1"
-                )
-                instanceCursor?.use { ic ->
-                    if (ic.moveToFirst()) {
-                        start = Date(ic.getLong(ic.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN)))
-                        end = Date(ic.getLong(ic.getColumnIndexOrThrow(CalendarContract.Instances.END)))
-                    } else {
-                        return null
-                    }
-                } ?: return null
-            }
+            val (start, end): Pair<Date, Date> =
+                if (cursor.getString(cursor.getColumnIndexOrThrow(CalendarContract.Events.RRULE)) == null) {
+                    Pair(
+                        Date(cursor.getLong(cursor.getColumnIndexOrThrow(CalendarContract.Events.DTSTART))),
+                        Date(cursor.getLong(cursor.getColumnIndexOrThrow(CalendarContract.Events.DTEND)))
+                    )
+                } else {
+                    val builder: Uri.Builder = CalendarContract.Instances.CONTENT_URI.buildUpon()
+                    ContentUris.appendId(builder, Date().time)
+                    ContentUris.appendId(builder, Long.MAX_VALUE)
+                    val where = "Instances.event_id = $eventId AND ${CalendarContract.Instances.END} > ${Date().time}"
+                    val instanceCursor = Globals.con.contentResolver.query(
+                        builder.build(), null, where, null, "${CalendarContract.Instances.BEGIN} LIMIT 1"
+                    )
+                    instanceCursor?.use { ic ->
+                        if (ic.moveToFirst()) {
+                            Pair(
+                                Date(ic.getLong(ic.getColumnIndexOrThrow(CalendarContract.Instances.BEGIN))),
+                                Date(ic.getLong(ic.getColumnIndexOrThrow(CalendarContract.Instances.END)))
+                            )
+                        } else null
+                    } ?: return null
+                }
 
             if (!Globals.db.getShowOnWidgetList().contains(calendarId)) return null
 

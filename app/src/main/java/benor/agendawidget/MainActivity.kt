@@ -43,10 +43,10 @@ class MainActivity : AppCompatActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
+        // After permissions dialog, the system will call onResume() automatically.
+        // If denied, onResume() will exit early at the permission check below.
         if (permissions[Manifest.permission.READ_CALENDAR] == true) {
             Globals.init(applicationContext)
-            Globals.editListInit = false
-            onResume()
         }
     }
 
@@ -65,6 +65,8 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (checkSelfPermission(Manifest.permission.READ_CALENDAR) != PackageManager.PERMISSION_GRANTED) return
+        // Ensure Globals is initialized even if onCreate() returned early (permissions flow)
+        Globals.init(applicationContext)
         calendars = AgendaCalendar.readCalendars()
         setScreen()
         loadAppsInBackground()
